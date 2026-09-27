@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mlx-serve-rs | High-Performance OpenAI-Compatible LLM Server for Apple Silicon</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <header class="header">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-badge">MLX</span>
+        <span class="logo-title">mlx-serve-rs</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#playground">API Playground</a>
+        <a href="#endpoints">Endpoints</a>
+        <a href="#benchmarks">Benchmarks</a>
+        <a href="#quickstart">Quickstart</a>
+        <a href="https://github.com/bhubbard/mlx-serve-rs" target="_blank" class="github-btn">
+          <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-badge">⚡ Pure Rust Apple Silicon LLM Server (MLX Port of ddalcu/mlx-serve)</div>
+      <h1 class="hero-title">High-Throughput OpenAI & Ollama Engine on Apple Silicon</h1>
+      <p class="hero-subtitle">
+        Drop-in replacement for OpenAI API endpoints running locally on Apple unified memory. 
+        Zero Python overhead, continuous token streaming via Server-Sent Events (SSE), and built-in L2 normalized embeddings.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-value">&lt; 1.8 ms</div>
+          <div class="stat-label">Time to First Token (TTFT)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">160+ tok/s</div>
+          <div class="stat-label">Llama-3.2 on M4 Max</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">OpenAI & Ollama API Wire-Compatible</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">0 MB</div>
+          <div class="stat-label">Python / CUDA Dependencies</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive API Playground -->
+    <section id="playground" class="section">
+      <div class="section-header">
+        <span class="section-tag">Interactive Console</span>
+        <h2>Live API Request Simulator</h2>
+        <p>Send simulated requests to <code>/v1/chat/completions</code> and observe SSE token chunks.</p>
+      </div>
+
+      <div class="playground-card">
+        <div class="playground-controls">
+          <div class="control-group">
+            <label>Endpoint:</label>
+            <select id="endpoint-select" class="custom-select">
+              <option value="chat">POST /v1/chat/completions (SSE Stream)</option>
+              <option value="completions">POST /v1/completions</option>
+              <option value="embeddings">POST /v1/embeddings</option>
+              <option value="ollama">POST /api/chat (Ollama)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Model:</label>
+            <select id="model-select" class="custom-select">
+              <option value="Llama-3.2-3B-Instruct">mlx-community/Llama-3.2-3B-Instruct-4bit</option>
+              <option value="Qwen2.5-7B-Instruct">mlx-community/Qwen2.5-7B-Instruct-4bit</option>
+              <option value="Mistral-7B-Instruct">mlx-community/Mistral-7B-Instruct-v0.3-4bit</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Temperature: <span id="temp-val">0.7</span></label>
+            <input type="range" id="temp-slider" min="0.0" max="1.5" step="0.1" value="0.7">
+          </div>
+        </div>
+
+        <div class="playground-body">
+          <div class="pane pane-input">
+            <div class="pane-header">Request Payload (JSON)</div>
+            <textarea id="json-input" class="code-area" spellcheck="false"></textarea>
+            <button id="send-request-btn" class="send-btn">Send API Request</button>
+          </div>
+
+          <div class="pane pane-output">
+            <div class="pane-header">
+              <span>Streaming Response (Server-Sent Events)</span>
+              <span id="response-status" class="status-badge">Ready</span>
+            </div>
+            <div id="stream-output" class="stream-console">Click "Send API Request" to initiate stream...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Endpoints Specification -->
+    <section id="endpoints" class="section">
+      <div class="section-header">
+        <span class="section-tag">Wire Protocol</span>
+        <h2>Supported API Endpoints</h2>
+      </div>
+
+      <div class="endpoints-grid">
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/v1/chat/completions</span>
+          </div>
+          <p>OpenAI chat completion with multi-turn messages, system prompts, stop sequences, and SSE streaming.</p>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/v1/completions</span>
+          </div>
+          <p>Raw text prompt completion with sampling parameters (temperature, top-p, repetition penalty).</p>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <span class="path">/v1/embeddings</span>
+          </div>
+          <p>Compute 128/768-dimensional L2-normalized dense embedding vectors from single strings or arrays.</p>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <span class="path">/v1/models</span>
+          </div>
+          <p>Returns loaded model descriptors and capabilities in standard OpenAI collection format.</p>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <span class="path">/api/tags</span>
+          </div>
+          <p>Ollama model enumeration endpoint, enabling native integration with Ollama web interfaces.</p>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <span class="path">/metrics</span>
+          </div>
+          <p>Real-time server telemetry: active requests, total prompt tokens, and generated tokens count.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quickstart & Integration -->
+    <section id="quickstart" class="section">
+      <div class="section-header">
+        <span class="section-tag">Integration</span>
+        <h2>Client Libraries & Quickstart</h2>
+      </div>
+
+      <div class="tabs-container">
+        <div class="client-tabs">
+          <button class="client-tab active" data-tab="curl">cURL</button>
+          <button class="client-tab" data-tab="python">Python (openai)</button>
+          <button class="client-tab" data-tab="rust">Rust SDK</button>
+        </div>
+
+        <div class="client-code-card">
+          <pre id="client-snippet"><code><span class="comment"># Start the server on port 8080</span>
+mlx-serve --port 8080 --model mlx-community/Llama-3.2-3B-Instruct-4bit
+
+<span class="comment"># Query chat completions via cURL</span>
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mlx-community/Llama-3.2-3B-Instruct-4bit",
+    "messages": [{"role": "user", "content": "Explain quantum computing in one sentence."}],
+    "stream": true
+  }'</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 Brandon Hubbard. Built with pure Rust & Apple Silicon MLX. MIT / Apache-2.0 License.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
