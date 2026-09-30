@@ -6,6 +6,7 @@ use crate::engine::model::MlxModel;
 use crate::engine::sampler::{Sampler, SamplingParams};
 use crate::error::{Result, ServerError};
 
+#[derive(Debug)]
 pub struct ServerMetrics {
     pub total_requests: AtomicU64,
     pub total_generated_tokens: AtomicU64,
@@ -24,6 +25,7 @@ impl Default for ServerMetrics {
     }
 }
 
+#[derive(Debug)]
 pub struct GenerationRequest {
     pub model_id: String,
     pub prompt: String,
@@ -32,6 +34,7 @@ pub struct GenerationRequest {
     pub tx: Option<mpsc::UnboundedSender<String>>,
 }
 
+#[derive(Debug)]
 pub struct Scheduler {
     pub models: HashMap<String, MlxModel>,
     pub default_model: String,

@@ -5,6 +5,7 @@ use mlx_rs::ops::{concatenate, softmax_axis, transpose_axes};
 use mlx_rs::Array;
 use crate::error::Result;
 
+#[derive(Debug)]
 pub struct KVCache {
     pub keys: Vec<Option<Array>>,
     pub values: Vec<Option<Array>>,
@@ -44,6 +45,7 @@ impl KVCache {
     }
 }
 
+#[derive(Debug)]
 pub struct TransformerBlock {
     pub q_proj: Linear,
     pub k_proj: Linear,
@@ -136,6 +138,7 @@ impl TransformerBlock {
     }
 }
 
+#[derive(Debug)]
 pub struct MlxModel {
     pub model_id: String,
     pub vocab_size: usize,

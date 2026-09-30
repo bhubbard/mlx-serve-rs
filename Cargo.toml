@@ -1,6 +1,6 @@
 [package]
 name = "mlx-serve-rs"
-version = "0.0.1"
+version = "0.1.0"
 edition = "2021"
 authors = ["Brandon Hubbard <brandon@brandonhubbard.com>"]
 description = "High-performance OpenAI-compatible LLM inference server for Apple Silicon in pure Rust using MLX"

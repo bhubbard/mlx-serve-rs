@@ -21,6 +21,7 @@ impl Default for SamplingParams {
     }
 }
 
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Sampler;
 
 impl Sampler {
