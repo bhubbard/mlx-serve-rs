@@ -4,3 +4,4 @@
 .DS_Store
 coverage_report
 target/coverage
+.github/workflows/coverage.yml
